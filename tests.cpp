@@ -15,6 +15,7 @@
 #include "cpp_solutions/third_party/Catch/include/catch.hpp"
 #include <vector>
 #include <Eigen/Dense>
+#include <random>
 
 TEST_CASE("Chapter 01 - Problem 01 - isUnique()", "test"){
     REQUIRE(chapter_01::isUnique("alex"));
@@ -22,13 +23,12 @@ TEST_CASE("Chapter 01 - Problem 01 - isUnique()", "test"){
 }
 
 TEST_CASE("Chapter 01 - Problem 02 - isPermutation()", "test"){
-    REQUIRE(!chapter_01::isPermutation("alex", "alexa"));
-    REQUIRE(chapter_01::isPermutation("aa", "aa"));
-    REQUIRE(chapter_01::isPermutation("alex", "lexa"));
+    REQUIRE(!chapter_01::isPermutation("alex", "aalex"));
     REQUIRE(chapter_01::isPermutation("alex", "xela"));
+    REQUIRE(!chapter_01::isPermutation("aabb", "aaaa"));
+    REQUIRE(!chapter_01::isPermutation("aaaa", "aabb"));
+    REQUIRE(!chapter_01::isPermutation("aaaa", "aa"));
     REQUIRE(chapter_01::isPermutation("", ""));
-    REQUIRE(!chapter_01::isPermutation("cat", "ctt"));
-    REQUIRE(!chapter_01::isPermutation("alexxx", "xxxxxx"));
 }
 
 TEST_CASE("Chapter 01 - Problem 03 - URLify()", "test") {
@@ -315,7 +315,7 @@ TEST_CASE("Chapter 02 - Problem 08 - findLoop()", "test") {
 }
 
 TEST_CASE("Chapter 03 - Stack", "test"){
-    chapter_03::Stack<int> myStack = chapter_03::Stack<int>();
+    chapter_03::Stack<int> myStack;
     for (int i = 1; i <= 4; i++){
         myStack.push(i);
     }
@@ -340,7 +340,7 @@ TEST_CASE("Chapter 03 - Stack", "test"){
 }
 
 TEST_CASE("Chapter 03 - Problem 02 - StackMin()", "test"){
-    chapter_03::StackMin<int> myStack = chapter_03::StackMin<int>();
+    chapter_03::StackMin<int> myStack;
     myStack.push(-8);
     myStack.push(-5);
     myStack.push(1);
@@ -355,8 +355,8 @@ TEST_CASE("Chapter 03 - Problem 02 - StackMin()", "test"){
     REQUIRE(myStack.seeMin() == -9);
 }
 
-TEST_CASE("Chapter 03 - Problem 04 - QueueViStacks()", "test"){
-    chapter_03::QueueViaStacks<int> myQueue = chapter_03::QueueViaStacks<int>();
+TEST_CASE("Chapter 03 - Problem 04 - QueueViaStacks()", "test"){
+    chapter_03::QueueViaStacks<int> myQueue;
     for (int i = 0; i < 10; i++) myQueue.enqueue(i);
     for (int i = 0; i < 5; i++) REQUIRE(myQueue.dequeue() == i);
     for (int i = 0; i < 5; i++) myQueue.enqueue(i);
@@ -364,17 +364,52 @@ TEST_CASE("Chapter 03 - Problem 04 - QueueViStacks()", "test"){
     for (int i = 0; i < 5; i++) REQUIRE(myQueue.dequeue() == i);
 }
 
+TEST_CASE("Chapter 03 - Problem 05 - sortStack()", "test") {
+    chapter_03::Stack<int> stack;
+    std::vector<int> vector = {7, 6, 3, 5, 1, 2, 4};
+    for (int x : vector) {
+        stack.push(x);
+    }
+    chapter_03::sortStack(stack);
+    for (int x = 1; x <= 7; x++) {
+        REQUIRE(stack.pop() == x);
+    }
+}
+
+TEST_CASE("Chapter 03 - Problem 06 - AnimalShelter", "test") {
+    chapter_03::AnimalShelter shelter;
+    auto catA = chapter_03::Cat("a");
+    auto dogB = chapter_03::Dog("b");
+    auto dogC = chapter_03::Dog("c");
+    auto catD = chapter_03::Cat("d");
+    auto dogE = chapter_03::Dog("e");
+    auto catF = chapter_03::Cat("f");
+    shelter.enqueue(&catA);
+    shelter.enqueue(&dogB);
+    shelter.enqueue(&dogC);
+    shelter.enqueue(&catD);
+    shelter.enqueue(&dogE);
+    shelter.enqueue(&catF);
+    REQUIRE("a" == shelter.dequeueAny()->getName());
+    REQUIRE("b" == shelter.dequeueAny()->getName());
+    REQUIRE("c" == shelter.dequeueDog()->getName());
+    REQUIRE("d" == shelter.dequeueCat()->getName());
+    REQUIRE("e" == shelter.dequeueAny()->getName());
+    REQUIRE("f" == shelter.dequeueAny()->getName());
+    REQUIRE(nullptr == shelter.dequeueAny());
+}
+
 TEST_CASE("Chapter 04 - Basic Graph Functionality", "test"){
-    chapter_02::GraphNode<int> node(1);
-    chapter_02::GraphNode<int>* child0 = new chapter_02::GraphNode<int>(0);
-    chapter_02::GraphNode<int>* child1 = new chapter_02::GraphNode<int>(1);
-    chapter_02::GraphNode<int>* child2 = new chapter_02::GraphNode<int>(2);
-    chapter_02::GraphNode<int>* child3 = new chapter_02::GraphNode<int>(3);
+    chapter_02::TetraGraphNode<int> node(1);
+    chapter_02::TetraGraphNode<int>* child0 = new chapter_02::TetraGraphNode<int>(0);
+    chapter_02::TetraGraphNode<int>* child1 = new chapter_02::TetraGraphNode<int>(1);
+    chapter_02::TetraGraphNode<int>* child2 = new chapter_02::TetraGraphNode<int>(2);
+    chapter_02::TetraGraphNode<int>* child3 = new chapter_02::TetraGraphNode<int>(3);
     node.addChild(child0, 0);
     node.addChild(child1, 1);
     node.addChild(child2, 2);
     node.addChild(child3, 3);
-    std::vector<chapter_02::GraphNode<int>*> children;
+    std::vector<chapter_02::TetraGraphNode<int>*> children;
     node.getChildren(children);
     REQUIRE(children[0] == child0);
     REQUIRE(children[1] == child1);
@@ -384,7 +419,7 @@ TEST_CASE("Chapter 04 - Basic Graph Functionality", "test"){
     node.removeChild(1);
     node.removeChild(2);
     node.removeChild(3);
-    std::vector<chapter_02::GraphNode<int>*> deletedChildren;
+    std::vector<chapter_02::TetraGraphNode<int>*> deletedChildren;
     node.getChildren(deletedChildren);
     REQUIRE(deletedChildren.size() == 0);
     // no need to delete children, because removeChildren does that for us.
@@ -401,14 +436,14 @@ TEST_CASE("Chapter 04 - Problem 01 - Route Between Nodes", "test"){
          v    |
          7 -> 8
      */
-    chapter_02::GraphNode<int>* node1 = new chapter_02::GraphNode<int>(1);
-    chapter_02::GraphNode<int>* node2 = new chapter_02::GraphNode<int>(2);
-    chapter_02::GraphNode<int>* node3 = new chapter_02::GraphNode<int>(3);
-    chapter_02::GraphNode<int>* node4 = new chapter_02::GraphNode<int>(4);
-    chapter_02::GraphNode<int>* node5 = new chapter_02::GraphNode<int>(5);
-    chapter_02::GraphNode<int>* node6 = new chapter_02::GraphNode<int>(6);
-    chapter_02::GraphNode<int>* node7 = new chapter_02::GraphNode<int>(7);
-    chapter_02::GraphNode<int>* node8 = new chapter_02::GraphNode<int>(8);
+    chapter_02::TetraGraphNode<int>* node1 = new chapter_02::TetraGraphNode<int>(1);
+    chapter_02::TetraGraphNode<int>* node2 = new chapter_02::TetraGraphNode<int>(2);
+    chapter_02::TetraGraphNode<int>* node3 = new chapter_02::TetraGraphNode<int>(3);
+    chapter_02::TetraGraphNode<int>* node4 = new chapter_02::TetraGraphNode<int>(4);
+    chapter_02::TetraGraphNode<int>* node5 = new chapter_02::TetraGraphNode<int>(5);
+    chapter_02::TetraGraphNode<int>* node6 = new chapter_02::TetraGraphNode<int>(6);
+    chapter_02::TetraGraphNode<int>* node7 = new chapter_02::TetraGraphNode<int>(7);
+    chapter_02::TetraGraphNode<int>* node8 = new chapter_02::TetraGraphNode<int>(8);
     node1->addChild(node2, 0);
     node2->addChild(node3, 0);
     node2->addChild(node4, 1);
@@ -417,12 +452,12 @@ TEST_CASE("Chapter 04 - Problem 01 - Route Between Nodes", "test"){
     node5->addChild(node6, 0);
     node7->addChild(node8, 0);
     node8->addChild(node5, 0);
-    REQUIRE(chapter_04::pathExistsDFS(node1, node6) == true);
-    REQUIRE(chapter_04::pathExistsDFS(node7, node5) == true);
-    REQUIRE(chapter_04::pathExistsDFS(node3, node8) == false);
-    REQUIRE(chapter_04::pathExistsDFS(node1, node8) == true);
-    REQUIRE(chapter_04::pathExistsDFS(static_cast<chapter_02::GraphNode<int>*>(nullptr), static_cast<chapter_02::GraphNode<int>*>(nullptr)) == false);
-    REQUIRE(chapter_04::pathExistsDFS(node1, static_cast<chapter_02::GraphNode<int>*>(nullptr)) == false);
+    REQUIRE(chapter_04::pathExistsDFS(node1, node6));
+    REQUIRE(chapter_04::pathExistsDFS(node7, node5));
+    REQUIRE(!chapter_04::pathExistsDFS(node3, node8));
+    REQUIRE(chapter_04::pathExistsDFS(node1, node8));
+    REQUIRE(!chapter_04::pathExistsDFS(static_cast<chapter_02::TetraGraphNode<int>*>(nullptr), static_cast<chapter_02::TetraGraphNode<int>*>(nullptr)));
+    REQUIRE(!chapter_04::pathExistsDFS(node1, static_cast<chapter_02::TetraGraphNode<int>*>(nullptr)));
     delete node1;
     delete node2;
     delete node3;
@@ -431,6 +466,352 @@ TEST_CASE("Chapter 04 - Problem 01 - Route Between Nodes", "test"){
     delete node6;
     delete node7;
     delete node8;
+}
+
+TEST_CASE("Chapter 04 - Problem 02 - minimalTree()", "test"){
+    // test 1
+    std::vector<int> sortedArray1 = {8, 9, 10, 11, 12, 13, 14};
+    chapter_02::BinaryNode<int>* head1 = chapter_04::minimalTree(sortedArray1);
+    std::vector<int> expectedPostOrderTraversal1 = {8, 10, 9, 12, 14, 13, 11};
+    std::vector<int> actualPostOrderTraversal1;
+    chapter_02::bstToVector(actualPostOrderTraversal1, head1);
+    REQUIRE(expectedPostOrderTraversal1.size() == actualPostOrderTraversal1.size());
+    for (int i = 0; i < actualPostOrderTraversal1.size(); i++) {
+        REQUIRE(actualPostOrderTraversal1[i] == expectedPostOrderTraversal1[i]);
+    }
+
+    // test 2
+    std::vector<int> sortedArray2 = {9, 10, 11, 12, 13, 14};
+    chapter_02::BinaryNode<int>* head2 = chapter_04::minimalTree(sortedArray2);
+    std::vector<int> expectedPostOrderTraversal2 = {10, 9, 12, 14, 13, 11};
+    std::vector<int> actualPostOrderTraversal2;
+    chapter_02::bstToVector(actualPostOrderTraversal2, head2);
+    REQUIRE(expectedPostOrderTraversal2.size() == actualPostOrderTraversal2.size());
+    for (int i = 0; i < actualPostOrderTraversal2.size(); i++) {
+        REQUIRE(actualPostOrderTraversal2[i] == expectedPostOrderTraversal2[i]);
+    }
+}
+
+TEST_CASE("Chapter 04 - Problem 03 - makeLL()", "test"){
+    /*
+     * Construct a binary tree of the form
+     * 0
+     * 12
+     * 3456
+     */
+    chapter_02::BinaryNode<int>* head = new chapter_02::BinaryNode<int>(0);
+    chapter_02::BinaryNode<int>* child1 = new chapter_02::BinaryNode<int>(1);
+    chapter_02::BinaryNode<int>* child2 = new chapter_02::BinaryNode<int>(2);
+    chapter_02::BinaryNode<int>* child3 = new chapter_02::BinaryNode<int>(3);
+    chapter_02::BinaryNode<int>* child4 = new chapter_02::BinaryNode<int>(4);
+    chapter_02::BinaryNode<int>* child5 = new chapter_02::BinaryNode<int>(5);
+    chapter_02::BinaryNode<int>* child6 = new chapter_02::BinaryNode<int>(6);
+    head->setLeft(child1);
+    head->setRight(child2);
+    child1->setLeft(child3);
+    child1->setRight(child4);
+    child2->setLeft(child5);
+    child2->setRight(child6);
+    // execute conversion to linked list
+    std::vector<chapter_02::SinglyLinkedNode<int>*> vectorOfHeads;
+    std::vector<chapter_02::SinglyLinkedNode<int>*> vectorOfTails;
+    std::vector<int> expected = {0, 1, 2, 3, 4, 5, 6};
+    chapter_04::makeLL(vectorOfHeads, vectorOfTails, head);
+    std::vector<int> actual = chapter_04::vectorFromVectorOfLLs(vectorOfHeads);
+    // test
+    for (int i = 0; i < expected.size(); i++) {
+        REQUIRE(expected[i] == actual[i]);
+    }
+}
+
+TEST_CASE("Chapter 04 - Problem 04 - checkBalanced()", "test") {
+/*
+balanced tree:
+
+node111,
+node121,node122,
+node131,node132,nullptr,nullptr,
+nullptr,nullptr,nullptr,nullptr,
+*/
+
+chapter_02::BinaryNode<int> node132(132, nullptr, nullptr);
+chapter_02::BinaryNode<int> node131(131, nullptr, nullptr);
+chapter_02::BinaryNode<int> node122(122, nullptr, nullptr);
+chapter_02::BinaryNode<int> node121(121, &node131, &node132);
+chapter_02::BinaryNode<int> node111(111, &node121, &node122);
+chapter_04::NodeStatus status1 = chapter_04::checkBalanced(&node111);
+REQUIRE(status1.balanced);
+REQUIRE(status1.subtreeSize == 3);
+
+/*
+unbalanced tree:
+
+node211,
+node221,node222,
+node231,node232,nullptr,nullptr,
+node241,nullptr,nullptr,nullptr,
+nullptr,nullptr,
+*/
+
+chapter_02::BinaryNode<int> node241(241, nullptr, nullptr);
+chapter_02::BinaryNode<int> node232(232, nullptr, nullptr);
+chapter_02::BinaryNode<int> node231(231, &node241, nullptr);
+chapter_02::BinaryNode<int> node222(222, nullptr, nullptr);
+chapter_02::BinaryNode<int> node221(221, &node231, &node232);
+chapter_02::BinaryNode<int> node211(211, &node221, &node222);
+chapter_04::NodeStatus status2 = chapter_04::checkBalanced(&node211);
+REQUIRE(!status2.balanced);
+REQUIRE(status2.subtreeSize == 4);
+}
+
+TEST_CASE("Chpater 04 - Problem 05 - validateBST()", "test") {
+    // construct a binary tree
+    chapter_02::BinaryNode<int> node1(1);
+    chapter_02::BinaryNode<int> node2(2);
+    chapter_02::BinaryNode<int> node3(3);
+    chapter_02::BinaryNode<int> node4(4);
+    chapter_02::BinaryNode<int> node5(5);
+    chapter_02::BinaryNode<int> node6(6);
+    chapter_02::BinaryNode<int> node8(8);
+    chapter_02::BinaryNode<int> node10(10);
+    /*
+                   8
+            4,            10
+       2,       6,
+    1,    3, 5,
+    */
+    node8.setLeft(&node4);
+    node8.setRight(&node10);
+    node4.setLeft(&node2);
+    node4.setRight(&node6);
+    node2.setLeft(&node1);
+    node2.setRight(&node3);
+    node6.setLeft(&node5);
+    REQUIRE(chapter_04::validateBST(&node8));
+
+    // add node that breaks BST rule
+    chapter_02::BinaryNode<int> node9(9);
+    node6.setRight(&node9);
+    REQUIRE(!chapter_04::validateBST(&node8));
+}
+
+TEST_CASE("Chapter 04 - Problem 06 - successor()", "test"){
+    // construct a binary tree
+    chapter_02::BinaryNode<int>* node0 = new chapter_02::BinaryNode<int>(0);
+    chapter_02::BinaryNode<int>* node1 = new chapter_02::BinaryNode<int>(1);
+    chapter_02::BinaryNode<int>* node2 = new chapter_02::BinaryNode<int>(2);
+    chapter_02::BinaryNode<int>* node3 = new chapter_02::BinaryNode<int>(3);
+    chapter_02::BinaryNode<int>* node4 = new chapter_02::BinaryNode<int>(4);
+    chapter_02::BinaryNode<int>* node5 = new chapter_02::BinaryNode<int>(5);
+    chapter_02::BinaryNode<int>* node6 = new chapter_02::BinaryNode<int>(6);
+    chapter_02::BinaryNode<int>* node7 = new chapter_02::BinaryNode<int>(7);
+    chapter_02::BinaryNode<int>* node8 = new chapter_02::BinaryNode<int>(8);
+    chapter_02::BinaryNode<int>* node9 = new chapter_02::BinaryNode<int>(9);
+    chapter_02::BinaryNode<int>* node10 = new chapter_02::BinaryNode<int>(10);
+    /*
+                            8
+                4                       10
+        2               6
+    1       3       5
+           0 9
+    In-order traversal:
+    1, 2, 0, 3, 9, 4, 5, 6, 8, 10
+    */
+    node0->setParent(node3);
+    node1->setParent(node2);
+    node3->setParent(node2);
+    node2->setParent(node4);
+    node5->setParent(node6);
+    node6->setParent(node4);
+    node4->setParent(node8);
+    node9->setParent(node3);
+    node10->setParent(node8);
+
+    node8->setLeft(node4);
+    node8->setRight(node10);
+    node4->setLeft(node2);
+    node4->setRight(node6);
+    node2->setLeft(node1);
+    node2->setRight(node3);
+    node6->setLeft(node5);
+    node3->setLeft(node0);
+    node3->setRight(node9);
+
+    REQUIRE(node8 == chapter_04::successor(node6));
+    REQUIRE(node5 == chapter_04::successor(node4));
+    REQUIRE(node0 == chapter_04::successor(node2));
+    REQUIRE(node3 == chapter_04::successor(node0));
+    REQUIRE(node4 == chapter_04::successor(node9));
+    REQUIRE(nullptr == chapter_04::successor(node10));
+}
+
+TEST_CASE("Chapter 04 - Problem 07 - buildOrder()", "test") {
+    // no circular dependencies
+    std::vector<char> projects1 = {'a', 'b', 'c', 'd', 'e', 'f'};
+    std::vector<std::pair<char, char>> dependencies1 = {
+            std::pair<char, char>('a', 'd'),
+            std::pair<char, char>('f', 'b'),
+            std::pair<char, char>('b', 'd'),
+            std::pair<char, char>('f', 'a'),
+            std::pair<char, char>('d', 'c')};
+    std::vector<char> projects2 = {'a', 'b', 'c', 'd', 'e', 'f', 'g'};
+    std::vector<std::pair<char, char>> dependencies2 = {
+            std::pair<char, char>('f', 'c'),
+            std::pair<char, char>('f', 'b'),
+            std::pair<char, char>('f', 'a'),
+            std::pair<char, char>('c', 'a'),
+            std::pair<char, char>('b', 'a'),
+            std::pair<char, char>('a', 'e'),
+            std::pair<char, char>('b', 'e'),
+            std::pair<char, char>('d', 'g')};
+    // add circular dependency
+    std::vector<std::pair<char, char>> dependencies3 = {
+            std::pair<char, char>('a', 'd'),
+            std::pair<char, char>('f', 'b'),
+            std::pair<char, char>('b', 'd'),
+            std::pair<char, char>('f', 'a'),
+            std::pair<char, char>('d', 'c'),
+            std::pair<char, char>('c', 'a')};
+    // verify output
+    std::vector<char> actualBuildOrder1 = {};
+    std::vector<char> actualBuildOrder2 = {};
+    std::vector<char> actualBuildOrder3 = {};
+    std::vector<char> expectedBuildOrder1 = {'e', 'f', 'b', 'a', 'd', 'c'};
+    std::vector<char> expectedBuildOrder2 = {'d', 'f', 'g', 'c', 'b', 'a', 'e'};
+    chapter_04::buildOrder(projects1, dependencies1, actualBuildOrder1);
+    chapter_04::buildOrder(projects2, dependencies2, actualBuildOrder2);
+    chapter_04::buildOrder(projects1, dependencies3, actualBuildOrder3);
+    for (int i = 0; i < actualBuildOrder1.size(); i++) {
+        REQUIRE(actualBuildOrder1[i] == expectedBuildOrder1[i]);
+    }
+    for (int i = 0; i < actualBuildOrder2.size(); i++) {
+        REQUIRE(actualBuildOrder2[i] == expectedBuildOrder2[i]);
+    }
+    REQUIRE(actualBuildOrder3.empty());
+}
+
+TEST_CASE("Chapter 04 - Problem 08 - firstCommonAncestor()", "test") {
+    /*
+    construct binary tree
+                    7
+            4               3
+        10      5       6       15
+                            21      17
+
+
+                            25
+    */
+    chapter_02::BinaryNode<int> n21(21);
+    chapter_02::BinaryNode<int> n17(17);
+    chapter_02::BinaryNode<int> n15(15, &n21, &n17);
+    chapter_02::BinaryNode<int> n6(6);
+    chapter_02::BinaryNode<int> n3(3, &n6, &n15);
+    chapter_02::BinaryNode<int> n10(10);
+    chapter_02::BinaryNode<int> n5(5);
+    chapter_02::BinaryNode<int> n4(4, &n10, &n5);
+    chapter_02::BinaryNode<int> n7(7, &n4, &n3);
+    chapter_02::BinaryNode<int> n25(25);
+
+    REQUIRE(&n3 == chapter_04::firstCommonAncestor(&n7, &n6, &n21));
+    REQUIRE(&n7 == chapter_04::firstCommonAncestor(&n7, &n10, &n21));
+    REQUIRE(nullptr == chapter_04::firstCommonAncestor(&n7, &n15, &n25));
+    REQUIRE(nullptr == chapter_04::firstCommonAncestor(&n7, &n7, &n7));  // a node is not its own ancestor
+    REQUIRE(&n7 == chapter_04::firstCommonAncestor(&n7, &n3, &n4));
+}
+
+TEST_CASE("Chapter 04 - Problem 10 - checkSubtree()", "test") {
+    /*
+    construct binary tree
+                    7
+            4               3
+        10      5       6       15
+                            21      17
+
+
+                            25
+    */
+    chapter_02::BinaryNode<int> n21(21);
+    chapter_02::BinaryNode<int> n17(17);
+    chapter_02::BinaryNode<int> n15(15, &n21, &n17);
+    chapter_02::BinaryNode<int> n6(6);
+    chapter_02::BinaryNode<int> n3(3, &n6, &n15);
+    chapter_02::BinaryNode<int> n10(10);
+    chapter_02::BinaryNode<int> n5(5);
+    chapter_02::BinaryNode<int> n4(4, &n10, &n5);
+    chapter_02::BinaryNode<int> n7(7, &n4, &n3);
+    chapter_02::BinaryNode<int> n25(25);
+    /*
+    construct disconnected binary tree
+        30
+    31      32
+    */
+    chapter_02::BinaryNode<int> n31(31);
+    chapter_02::BinaryNode<int> n32(32);
+    chapter_02::BinaryNode<int> n30(30, &n31, &n32);
+
+    REQUIRE(chapter_04::checkSubtree(&n7, &n15));
+    REQUIRE(chapter_04::checkSubtree(&n7, &n7));
+    REQUIRE(chapter_04::checkSubtree(&n7, &n21));
+    REQUIRE(chapter_04::checkSubtree(&n7, &n4));
+    REQUIRE(!chapter_04::checkSubtree<int>(&n7, nullptr));
+    REQUIRE(!chapter_04::checkSubtree(&n7, &n30));
+    REQUIRE(!chapter_04::checkSubtree(&n7, &n31));
+    REQUIRE(!chapter_04::checkSubtree(&n25, &n31));
+    REQUIRE(chapter_04::checkSubtree(&n30, &n31));
+    REQUIRE(!chapter_04::checkSubtree<int>(nullptr, nullptr));
+}
+
+TEST_CASE("Chapter 04 - Problem 11 - randomBST()", "test"){
+    std::vector<int> valuesList = {10, 13, 14, 11, 7, 7, 8, 7, 4, 10};
+    chapter_04::RandBinaryNode<int> head(valuesList[0]);
+    for (int i = 1; i < valuesList.size(); i++) {
+        head.insert(valuesList[i]);
+    }
+    int occurrenceSum4 = 0;
+    int occurrenceSum7 = 0;
+    int occurrenceSum10 = 0;
+    int occurrenceSum13 = 0;
+    // using 10,000 random samples, assert that occurence of values in random samples approximately
+    // the same as the occurence of the values in the tree
+    std::mt19937 gen(0);  // standard mersenne_twister_engine seeded with zero
+    for (int i = 0; i < 10000; i++) {
+        int randValue = head.getRandomNode(-1, &gen)->getValue();
+        switch (randValue){
+            case 4 : occurrenceSum4 ++; break;
+            case 7 : occurrenceSum7 ++; break;
+            case 10 : occurrenceSum10 ++; break;
+            case 13 : occurrenceSum13 ++; break;
+        }
+    }
+    REQUIRE(((950 <= occurrenceSum4) && (occurrenceSum4 <= 1050)));
+    REQUIRE(((2950 <= occurrenceSum7) && (occurrenceSum7 <= 3050)));
+    REQUIRE(((1950 <= occurrenceSum10) && (occurrenceSum10 <= 2050)));
+    REQUIRE(((950 <= occurrenceSum13) && (occurrenceSum13 <= 1050)));
+}
+
+TEST_CASE("Chapter 04 - Problem 12 - pathsWithSum()", "test"){
+    /*
+    construct binary tree like in textbook example
+                        10
+                5                   -3
+        3              1        __      11
+    3     -2         __    2
+    */
+    // leaf nodes at depth = 3
+    chapter_02::BinaryNode<int> n3_leaf(3);
+    chapter_02::BinaryNode<int> n_minus2(-2);
+    chapter_02::BinaryNode<int> n2(2);
+    // nodes at depth = 2
+    chapter_02::BinaryNode<int> n3(3, &n3_leaf, &n_minus2);
+    chapter_02::BinaryNode<int> n1(1, nullptr, &n2);
+    chapter_02::BinaryNode<int> n11(11);
+    // nodes at depth = 1
+    chapter_02::BinaryNode<int> n5(5, &n3, &n1);
+    chapter_02::BinaryNode<int> n_minus3(-3, nullptr, &n11);
+    // root node at depth = 0
+    chapter_02::BinaryNode<int> n10(10, &n5, &n_minus3);
+    // count paths that sum to 8
+    REQUIRE(3 == chapter_04::pathsWithSum(8, &n10));
 }
 
 TEST_CASE("Chapter 05 - Problem 01 - insertion()", "test"){

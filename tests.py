@@ -31,13 +31,13 @@ from python_solutions.chapter_04_trees_and_graphs import tree_basics as tb
 from python_solutions.chapter_04_trees_and_graphs import problem_04_01_path_exists as p_4_1
 from python_solutions.chapter_04_trees_and_graphs import problem_04_02_make_bst as p_4_2
 from python_solutions.chapter_04_trees_and_graphs import problem_04_03_make_ll as p_4_3
-from python_solutions.chapter_04_trees_and_graphs import problem_04_04_is_balanced as p_4_4
+from python_solutions.chapter_04_trees_and_graphs import problem_04_04_check_balanced as p_4_4
 from python_solutions.chapter_04_trees_and_graphs import problem_04_05_validate_BST as p_4_5
 from python_solutions.chapter_04_trees_and_graphs import problem_04_06_successor as p_4_6
 from python_solutions.chapter_04_trees_and_graphs import problem_04_07_build_order as p_4_7
 from python_solutions.chapter_04_trees_and_graphs import problem_04_08_first_common_ancestor as p_4_8
 from python_solutions.chapter_04_trees_and_graphs import problem_04_10_check_subtree as p_4_10
-from python_solutions.chapter_04_trees_and_graphs import problem_04_11_random_node as p_4_11
+from python_solutions.chapter_04_trees_and_graphs import problem_04_11_random_BST as p_4_11
 from python_solutions.chapter_04_trees_and_graphs import problem_04_12_paths_with_sum as p_4_12
 from python_solutions.chapter_05_bit_manipulation import problem_05_00_convert_binary as p_5_0
 from python_solutions.chapter_05_bit_manipulation import problem_05_01_insertion as p_5_1
@@ -76,11 +76,12 @@ class Tests(unittest.TestCase):
         self.assertFalse(p_1_1.is_unique(s2))
 
     def test_problem_1_2(self):
-        s1 = "alex"
-        s2 = "aalex"
-        s3 = "xela"
-        self.assertFalse(p_1_2.are_permutations(s1, s2))
-        self.assertTrue(p_1_2.are_permutations(s1, s3))
+        self.assertFalse(p_1_2.are_permutations("alex", "aalex"))
+        self.assertTrue(p_1_2.are_permutations("alex", "xela"))
+        self.assertFalse(p_1_2.are_permutations("aabb", "aaaa"))
+        self.assertFalse(p_1_2.are_permutations("aaaa", "aabb"))
+        self.assertFalse(p_1_2.are_permutations("aaaa", "aa"))
+        self.assertTrue(p_1_2.are_permutations("", ""))
 
     def test_problem_1_3(self):
         # python strings are immutable, so we use a list of chars to do this "in place"
@@ -458,15 +459,20 @@ class Tests(unittest.TestCase):
 
     def test_problem_3_6(self):
         shelter = p_3_6.AnimalShelter()
+        self.assertEqual(None, shelter.dequeue_cat())
         shelter.enqueue("cat", "a")
         shelter.enqueue("dog", "b")
         shelter.enqueue("dog", "c")
         shelter.enqueue("cat", "d")
+        shelter.enqueue("dog", "e")
+        shelter.enqueue("cat", "f")
         self.assertEqual("a", shelter.dequeue_any().name)
         self.assertEqual("b", shelter.dequeue_any().name)
         self.assertEqual("c", shelter.dequeue_dog().name)
         self.assertEqual("d", shelter.dequeue_cat().name)
-        self.assertEqual(None, shelter.dequeue_cat())
+        self.assertEqual("e", shelter.dequeue_any().name)
+        self.assertEqual("f", shelter.dequeue_any().name)
+        self.assertEqual(None, shelter.dequeue_any())
 
     def test_tree_binary_tree_traversals(self):
         """
@@ -540,11 +546,15 @@ class Tests(unittest.TestCase):
         p_4_1.reset(my_graph)
         self.assertEqual(p_4_1.path_exists_BFS(my_graph, my_graph.get_node(1), None), False)
 
-
     def test_problem_4_2(self):
-        my_list = [8, 9, 10, 11, 12, 13, 14]
-        root = p_4_2.make_bst(my_list)
-        self.assertEqual('11,\n9,13,\n8,10,12,14,\n_,_,_,_,_,_,_,_,\n', tb.stringify_bin_tree(root))
+        # test 1
+        my_list_1 = [8, 9, 10, 11, 12, 13, 14]
+        root1 = p_4_2.make_bst(my_list_1)
+        self.assertEqual('11,\n9,13,\n8,10,12,14,\n_,_,_,_,_,_,_,_,\n', tb.stringify_bin_tree(root1))
+        # test 2
+        my_list_2 = [9, 10, 11, 12, 13, 14]
+        root2 = p_4_2.make_bst(my_list_2)
+        self.assertEqual('11,\n9,13,\n_,10,12,14,\n_,_,_,_,_,_,\n', tb.stringify_bin_tree(root2))
 
     def test_problem_4_3(self):
         """
@@ -582,8 +592,8 @@ class Tests(unittest.TestCase):
         node132 = tb.BinaryNode("leaf", None, None)
         node121 = tb.BinaryNode("node", node131, node132)
         node122 = tb.BinaryNode("leaf", None, None)
-        root1 = tb.BinaryNode("root", node121, node122)
-        self.assertTrue(p_4_4.is_balanced(root1))
+        node111 = tb.BinaryNode("root", node121, node122)
+        self.assertTrue(p_4_4.check_balanced(node111))
         """
         unbalanced tree:
         root,
@@ -597,11 +607,11 @@ class Tests(unittest.TestCase):
         node232 = tb.BinaryNode("leaf", None, None)
         node221 = tb.BinaryNode("node", node231, node232)
         node222 = tb.BinaryNode("leaf", None, None)
-        root2 = tb.BinaryNode("root", node221, node222)
-        self.assertFalse(p_4_4.is_balanced(root2))
+        root211 = tb.BinaryNode("root", node221, node222)
+        self.assertFalse(p_4_4.check_balanced(root211))
 
     def test_problem_4_5(self):
-        # contstruct a binary tree
+        # construct a binary tree
         node1 = tb.BinaryNode(1)
         node2 = tb.BinaryNode(2)
         node3 = tb.BinaryNode(3)
@@ -610,7 +620,12 @@ class Tests(unittest.TestCase):
         node6 = tb.BinaryNode(6)
         node8 = tb.BinaryNode(8)
         node10 = tb.BinaryNode(10)
-
+        """
+                       8
+                4,            10
+           2,       6,
+        1,    3, 5,
+        """
         node8.left = node4
         node8.right = node10
         node4.left = node2
@@ -625,6 +640,8 @@ class Tests(unittest.TestCase):
         self.assertFalse(p_4_5.validate_BST(node8))
 
     def test_problem_4_6(self):
+        # construct a binary tree
+        node0 = tb.BinaryNodeLP(0)
         node1 = tb.BinaryNodeLP(1)
         node2 = tb.BinaryNodeLP(2)
         node3 = tb.BinaryNodeLP(3)
@@ -632,14 +649,25 @@ class Tests(unittest.TestCase):
         node5 = tb.BinaryNodeLP(5)
         node6 = tb.BinaryNodeLP(6)
         node8 = tb.BinaryNodeLP(8)
+        node9 = tb.BinaryNodeLP(9)
         node10 = tb.BinaryNodeLP(10)
-
+        """
+                                    8
+                        4                       10
+                2               6
+            1       3       5
+                   0 9
+        In-order traversal: 
+        1, 2, 0, 3, 9, 4, 5, 6, 8, 10
+        """
+        node0.parent = node3
         node1.parent = node2
         node3.parent = node2
         node2.parent = node4
         node5.parent = node6
         node6.parent = node4
         node4.parent = node8
+        node9.parent = node3
         node10.parent = node8
 
         node8.left = node4
@@ -649,109 +677,147 @@ class Tests(unittest.TestCase):
         node2.left = node1
         node2.right = node3
         node6.left = node5
+        node3.left = node0
+        node3.right = node9
 
         self.assertEqual(node8, p_4_6.successor(node6))
         self.assertEqual(node5, p_4_6.successor(node4))
-        self.assertEqual(node3, p_4_6.successor(node2))
+        self.assertEqual(node0, p_4_6.successor(node2))
+        self.assertEqual(node3, p_4_6.successor(node0))
+        self.assertEqual(node4, p_4_6.successor(node9))
         self.assertEqual(None, p_4_6.successor(node10))
 
     def test_problem_4_7(self):
-        project1 = ['a', 'b', 'c', 'd', 'e', 'f']
+        # no circular dependencies
+        projects1 = ['a', 'b', 'c', 'd', 'e', 'f']
         dependencies1 = [('a', 'd'), ('f', 'b'), ('b', 'd'), ('f', 'a'), ('d', 'c')]
-        project2 = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+        projects2 = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
         dependencies2 = [('f', 'c'), ('f', 'b'), ('f', 'a'), ('c', 'a'), ('b', 'a'), ('a', 'e'), ('b', 'e'), ('d', 'g')]
-        self.assertEqual(['e', 'f', 'b', 'a', 'd', 'c'], p_4_7.build_order(project1, dependencies1))
-        self.assertEqual(['d', 'f', 'g', 'c', 'b', 'a', 'e'], p_4_7.build_order(project2, dependencies2))
+        # add circular dependency
+        dependencies3 = [('a', 'd'), ('f', 'b'), ('b', 'd'), ('f', 'a'), ('d', 'c'), ('c', 'a')]
+        self.assertEqual(['e', 'f', 'b', 'a', 'd', 'c'], p_4_7.build_order(projects1, dependencies1))
+        self.assertEqual(['d', 'f', 'g', 'c', 'b', 'a', 'e'], p_4_7.build_order(projects2, dependencies2))
+        self.assertEqual(None, p_4_7.build_order(projects1, dependencies3))
 
     def test_problem_4_8(self):
-        n7 = tb.BinaryNodeLP(7)
-        n4 = tb.BinaryNodeLP(4, parent=n7)
-        n3 = tb.BinaryNodeLP(3, parent=n7)
-        n7.left = n4
-        n7.right = n3
-        n10 = tb.BinaryNodeLP(10, parent=n4)
-        n5 = tb.BinaryNodeLP(5, parent=n4)
-        n4.left = n10
-        n4.right = n5
-        n6 = tb.BinaryNodeLP(6, parent=n3)
-        n15 = tb.BinaryNodeLP(15, parent=n3)
-        n3.left = n6
-        n3.right = n15
-        n21 = tb.BinaryNodeLP(21, parent=n15)
-        n17 = tb.BinaryNodeLP(17, parent=n15)
-        n15.left = n21
-        n15.right = n17
-        n25 = tb.BinaryNodeLP(25)
-        self.assertEqual(n3, p_4_8.fca(n6, n21))
-        self.assertEqual(n7, p_4_8.fca(n10, n21))
-        self.assertEqual(None, p_4_8.fca(n15, n25))
-        self.assertEqual(n7, p_4_8.fca(n7, n7))
-        self.assertEqual(n7, p_4_8.fca(n3, n4))
+        """
+        construct binary tree
+                        7
+                4               3
+            10      5       6       15
+                                21      17
 
-    def test_problem_4_9(self):
-        n25 = tb.BinaryNode(25)
-        n70 = tb.BinaryNode(70)
-        n20 = tb.BinaryNode(20, right=n25)
-        n60 = tb.BinaryNode(60, right=n70)
-        n50 = tb.BinaryNode(50, left=n20, right=n60)
-        pass
+
+                                25
+        """
+        n21 = tb.BinaryNode(21)
+        n17 = tb.BinaryNode(17)
+        n15 = tb.BinaryNode(15, n21, n17)
+        n6 = tb.BinaryNode(6)
+        n3 = tb.BinaryNode(3, n6, n15)
+        n10 = tb.BinaryNode(10)
+        n5 = tb.BinaryNode(5)
+        n4 = tb.BinaryNode(4, n10, n5)
+        n7 = tb.BinaryNode(7, n4, n3)
+        n25 = tb.BinaryNode(25)  # unconnected node
+
+        self.assertEqual(n3, p_4_8.first_common_ancestor(n7, n6, n21))
+        self.assertEqual(n7, p_4_8.first_common_ancestor(n7, n10, n21))
+        self.assertEqual(None, p_4_8.first_common_ancestor(n7, n15, n25))
+        self.assertEqual(None, p_4_8.first_common_ancestor(n7, n7, n7))  # a node is not its own ancestor
+        self.assertEqual(n7, p_4_8.first_common_ancestor(n7, n3, n4))
 
     def test_problem_4_10(self):
-        # tree 1
-        n1_1 = tb.BinaryNode(1)
-        n2_1 = tb.BinaryNode(2)
-        n7_1 = tb.BinaryNode(7)
-        n9_1 = tb.BinaryNode(9)
-        n3_1 = tb.BinaryNode(3, n1_1, n2_1)
-        n8_1 = tb.BinaryNode(8, n7_1, n9_1)
-        n5_1 = tb.BinaryNode(5, n3_1, n8_1)
-        t1_head = n5_1
-        # tree 2
-        t2_head = n8_1
-        # tree 3
-        n12_3 = tb.BinaryNode(12)
-        n13_3 = tb.BinaryNode(13)
-        n11_3 = tb.BinaryNode(11, n12_3, n13_3)
-        t3_head = n11_3
-        # tree 4
-        n7_4 = tb.BinaryNode(7)
-        n9_4 = tb.BinaryNode(9)
-        n8_4 = tb.BinaryNode(8, n7_4, n9_4)
-        t4_head = n8_4
-        # tree 5
-        n6_5 = tb.BinaryNode(6)
-        n9_5 = tb.BinaryNode(9)
-        n8_5 = tb.BinaryNode(8, n6_5, n9_5)
-        t5_head = n8_5
-        self.assertEqual(p_4_10.check_subtree(t1_head, t1_head), True)
-        self.assertEqual(p_4_10.check_subtree(t2_head, t1_head), True)
-        self.assertEqual(p_4_10.check_subtree(t3_head, t1_head), False)
-        self.assertEqual(p_4_10.check_subtree(t4_head, t1_head), True)
-        self.assertEqual(p_4_10.check_subtree(t5_head, t1_head), False)
+        """
+        construct binary tree
+                        7
+                4               3
+            10      5       6       15
+                                21      17
+
+
+                                25
+        """
+        n21 = tb.BinaryNode(21)
+        n17 = tb.BinaryNode(17)
+        n15 = tb.BinaryNode(15, n21, n17)
+        n6 = tb.BinaryNode(6)
+        n3 = tb.BinaryNode(3, n6, n15)
+        n10 = tb.BinaryNode(10)
+        n5 = tb.BinaryNode(5)
+        n4 = tb.BinaryNode(4, n10, n5)
+        n7 = tb.BinaryNode(7, n4, n3)
+        n25 = tb.BinaryNode(25)  # unconnected node
+
+        """
+        construct disconnected binary tree
+                30
+            31      32
+        """
+        n31 = tb.BinaryNode(31)
+        n32 = tb.BinaryNode(32)
+        n30 = tb.BinaryNode(30, n31, n32)
+
+        self.assertEqual(True, p_4_10.check_subtree(n7, n15))
+        self.assertEqual(True, p_4_10.check_subtree(n7, n7))
+        self.assertEqual(True, p_4_10.check_subtree(n7, n21))
+        self.assertEqual(True, p_4_10.check_subtree(n7, n4))
+        self.assertEqual(False, p_4_10.check_subtree(n7, None))
+        self.assertEqual(False, p_4_10.check_subtree(n7, n30))
+        self.assertEqual(False, p_4_10.check_subtree(n4, n31))
+        self.assertEqual(False, p_4_10.check_subtree(n25, n31))
+        self.assertEqual(True, p_4_10.check_subtree(n30, n31))
+        self.assertEqual(False, p_4_10.check_subtree(None, None))
 
     def test_problem_4_11(self):
         random.seed(0)
-        rnd_bst = p_4_11.RandBST()
-        values_list = [10, 13, 14, 11, 7, 5, 8, 6, 4, 10]
+        rnd_bst_head = p_4_11.RandBinNode()
+        values_list = [10, 13, 14, 11, 7, 7, 8, 7, 4, 10]
         for i in values_list:
-            rnd_bst.insert(i)
-        self.assertEqual(rnd_bst.get_random(), 11)
-        self.assertEqual(rnd_bst.get_random(), 8)
-        self.assertEqual(rnd_bst.get_random(), 11)
-        self.assertEqual(rnd_bst.get_random(), 8)
-        self.assertEqual(rnd_bst.get_random(), 13)
+            rnd_bst_head.insert(i)
+        occurrence_sum_4 = 0
+        occurrence_sum_7 = 0
+        occurrence_sum_10 = 0
+        occurrence_sum_13 = 0
+        # using 10,000 random samples, assert that occurence of values in random samples approximately
+        # the same as the occurence of the values in the tree
+        for i in range(10000):
+            rand_value = rnd_bst_head.get_random()
+            if rand_value == 4:
+                occurrence_sum_4 += 1
+            elif rand_value == 7:
+                occurrence_sum_7 += 1
+            elif rand_value == 10:
+                occurrence_sum_10 += 1
+            elif rand_value == 13:
+                occurrence_sum_13 += 1
+        self.assertAlmostEqual(occurrence_sum_4, 1000, delta=50)
+        self.assertAlmostEqual(occurrence_sum_7, 3000, delta=50)  # 7 occurs 3 times more than 4
+        self.assertAlmostEqual(occurrence_sum_10, 2000, delta=50)  # 10 occurs 2 times more than 4
+        self.assertAlmostEqual(occurrence_sum_13, 1000, delta=50)
 
     def test_problem_4_12(self):
-        # create tree. Same tree as in textbook.
-        n_11 = tb.BinaryNode(11)
-        n_minus_8 = tb.BinaryNode(-8)
+        """
+        construct binary tree like in textbook example
+                            10
+                    5                   -3
+            3              1        __      11
+        3     -2         __    2
+        """
+        # leaf nodes at depth = 3
+        n_3_leaf = tb.BinaryNode(3)
         n_minus_2 = tb.BinaryNode(-2)
         n_2 = tb.BinaryNode(2)
+        # nodes at depth = 2
+        n_3 = tb.BinaryNode(3, n_3_leaf, n_minus_2)
         n_1 = tb.BinaryNode(1, None, n_2)
-        n_3 = tb.BinaryNode(3, n_minus_8, n_minus_2)
-        n_minus_3 = tb.BinaryNode(-3, None, n_11)
+        n_11 = tb.BinaryNode(11)
+        # nodes at depth = 1
         n_5 = tb.BinaryNode(5, n_3, n_1)
+        n_minus_3 = tb.BinaryNode(-3, None, n_11)
+        # root node at depth = 0
         n_10 = tb.BinaryNode(10, n_5, n_minus_3)
+        # count paths that sum to 8
         self.assertEqual(p_4_12.paths_with_sum(n_10, 8), 3)
 
     def test_problem_5_0(self):
